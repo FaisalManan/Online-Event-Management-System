@@ -287,21 +287,6 @@ http://localhost:3000
 
 ------------------------------------------------------------------------------------
 
-# 🖥️ Screenshots
-
-Add screenshots:
-
-```
-screenshots/
-
-login.png
-dashboard.png
-events.png
-registrations.png
-```
-
-------------------------------------------------------------------------------------
-
 # 🔮 Future Improvements
 
 - Email notifications
