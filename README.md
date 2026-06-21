@@ -1,232 +1,332 @@
-# Online Event Management System
+# 🎟 EventHub — Online Event Management System
 
-A full-stack web application for managing events and registrations, built with Node.js, Express, EJS, and MongoDB.
+![Node.js](https://img.shields.io/badge/Node.js-18.x-green?logo=node.js)
+![Express](https://img.shields.io/badge/Express-4.x-black?logo=express)
+![MongoDB](https://img.shields.io/badge/MongoDB-7.x-green?logo=mongodb)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-purple?logo=bootstrap)
+![License](https://img.shields.io/badge/License-MIT-blue)
 
-## Stack
+A full-stack **Online Event Management System** built with **Node.js, Express.js, MongoDB, EJS, and Bootstrap 5**.
 
-| Layer          | Technology                            |
-|----------------|---------------------------------------|
-| Runtime        | Node.js                               |
-| Framework      | Express.js                            |
-| Database       | MongoDB + Mongoose                    |
-| Auth           | Passport.js + passport-local-mongoose |
-| Views          | EJS templates                         |
-| Styling        | Bootstrap 5 (CDN) + Bootstrap Icons   |
-| Session        | express-session + connect-flash       |
-| Config         | dotenv                                |
-| Form override  | method-override (PUT/DELETE in forms) |
+The application provides a complete platform for creating, managing, and registering for events with secure authentication and role-based access control.
 
-## Setup
+------------------------------------------------------------------------------------
 
-1. **Install dependencies**
-   ```bash
-   npm install
-   ```
+# 🚀 Overview
 
-2. **Configure environment** — create a `.env` file in the project root:
-   ```env
-   PORT=3000
-   MONGO_URI=mongodb://127.0.0.1:27017/event-management
-   SESSION_SECRET=your-secret-here
-   ```
+EventHub allows users to discover events, register for upcoming events, and manage registrations.
 
-3. **Make sure MongoDB is running locally**
+The system supports three user roles:
 
-4. **Start the server**
-   ```bash
-   # Development (auto-restart with nodemon)
-   npm run dev
+- **Participant**
+- **Organizer**
+- **Admin**
 
-   # Production
-   npm start
-   ```
+Each role has different permissions and access levels.
 
-5. Open `http://localhost:3000` — you will land on the login page.
+------------------------------------------------------------------------------------
 
-## First Admin Account
+# ✨ Features
 
-Admin accounts **cannot** be created via the public register form (locked to Participant/Organizer only).
+## 🔐 Authentication
 
-**Option A — MongoDB shell (one-time bootstrap):**
-```js
-// Register normally at /register, then run in mongosh:
-use event-management
-db.users.updateOne({ username: "yourusername" }, { $set: { role: "Admin" } })
-```
+- User registration and login
+- Secure password hashing
+- Passport.js authentication
+- Session-based login system
+- Logout functionality
 
-**Option B — Once one Admin exists:**
-Log in as Admin → go to `/users` → use the **Create New User** form and select the Admin role.
+------------------------------------------------------------------------------------
 
-## User Roles
+# 👥 Role-Based Access Control
 
-| Role            | Permissions                                                                                                                                         |
-|-----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Participant** | Browse & search events · Self-register for upcoming events · Cancel own registration · View own registrations only                                  |
-| **Organizer**   | All of the above · Create events · Edit & delete **own** events · Add/edit/delete registrations for **own** events · Organizer field locked to self |
-| **Admin**       | Full access · Create/edit/delete **any** event · Reassign organizer · Add/edit/delete **any** registration · Create & delete users of any role      |
 
-## Features
+| Role        | Features                                                                                            |
+|-------------|-----------------------------------------------------------------------------------------------------|
+| Participant | Browse events, search events, register for events, cancel own registrations, view own registrations |
+| Organizer   | Create events, update/delete own events, manage registrations for own events                        |
+| Admin       | Complete system control, manage users, events, and all registrations                                |
 
-| Feature                           | Details                                                                          |
-|-----------------------------------|----------------------------------------------------------------------------------|
-| Authentication                    | Register, login, logout via `passport-local-mongoose` with hashed passwords     |
-| Role-based authorization          | `isLoggedIn`, `isAdmin`, `isOrganizerOrAdmin` middleware on every route          |
-| Server-side validation            | Required fields, min/max lengths, email format, past-date check on events        |
-| ReDoS protection                  | All `$regex` search inputs are escaped before hitting MongoDB                    |
-| Dashboard                         | Scoped stats — Organizer sees own data, Admin/Participant see global totals       |
-| Event CRUD                        | Full create/read/update/delete with validation and ownership checks              |
-| Event search                      | Filter by event name and/or venue (case-insensitive, escape-sanitised)           |
-| Event pagination                  | 6 events per page, search params preserved across pages                          |
-| Past event indicators             | Grey row + "Past" badge in list; warning banner + registration blocked on detail |
-| Registration CRUD                 | Full create/read/update/delete scoped by role                                    |
-| Registration pagination           | 8 registrations per page                                                         |
-| Duplicate registration guard      | Unique compound DB index on `{ participant, event }` + friendly error message    |
-| Participant self-cancel           | Cancel button on both the registrations list and the event detail page           |
-| Organizer registration management | Organizers can add/edit/delete registrations on their own events                 |
-| User management                   | Admin can list, search, create (any role), and delete users (cascades data)      |
-| Flash messages                    | Success and error alerts on every action, auto-dismissible                       |
-| Active navbar links               | Current page highlighted via `currentPath` res.local                            |
-| Custom 404 page                   | Friendly not-found page for any unknown route                                    |
-| Global error handler              | 500 handler catches unexpected errors without crashing the server                |
-| Favicon                           | Custom SVG ticket emoji icon in the browser tab                                  |
-| Environment config                | All secrets and URIs in `.env`, never hardcoded                                  |
 
-## Routes
+------------------------------------------------------------------------------------
 
-### Authentication
+# 📅 Event Management
 
-| Method | Route        | Description                                         |
-|--------|--------------|-----------------------------------------------------|
-| GET    | `/register`  | Show registration form (Participant/Organizer only) |
-| POST   | `/register`  | Create new account with server-side validation      |
-| GET    | `/login`     | Show login form                                     |
-| POST   | `/login`     | Authenticate user via Passport                      |
-| GET    | `/logout`    | Log out current user                                |
-| GET    | `/dashboard` | Personalised stats dashboard *(login required)*     |
 
-### Events
+| Feature       | Description                                      |
+|---------------|--------------------------------------------------|
+| Create Events | Organizers/Admins can create events              |
+| Update Events | Modify event details                             |
+| Delete Events | Remove events                                    |
+| Search        | Search events by name and venue                  |
+| Pagination    | Paginated event listing                          |
+| Past Events   | Detect and block registration for expired events |
 
-| Method | Route              | Description                                        |
-|--------|--------------------|----------------------------------------------------|
-| GET    | `/events`          | List all events with search + pagination (public)  |
-| GET    | `/events/new`      | Show add event form *(Organizer/Admin)*            |
-| POST   | `/events`          | Save new event with validation *(Organizer/Admin)* |
-| GET    | `/events/:id`      | Event details + registrations list                 |
-| GET    | `/events/:id/edit` | Show edit form *(owner Organizer or Admin)*        |
-| PUT    | `/events/:id`      | Update event *(owner Organizer or Admin)*          |
-| DELETE | `/events/:id`      | Delete event + all registrations *(Admin only)*    |
 
-### Registrations
+------------------------------------------------------------------------------------
 
-| Method | Route                     | Description                                                          |
-|--------|---------------------------|----------------------------------------------------------------------|
-| GET    | `/registrations`          | List registrations scoped by role, paginated                         |
-| GET    | `/registrations/new`      | Add registration form *(Organizer/Admin)*                            |
-| POST   | `/registrations`          | Save registration (self-register or Organizer/Admin add)             |
-| GET    | `/registrations/:id/edit` | Edit registration form *(Organizer own events / Admin)*              |
-| PUT    | `/registrations/:id`      | Update registration status *(Organizer own events / Admin)*          |
-| DELETE | `/registrations/:id`      | Delete *(Admin)* · Cancel own *(Participant)* · Own event *(Organizer)* |
+# 📝 Registration System
 
-### Users *(Admin only)*
 
-| Method | Route          | Description                                        |
-|--------|----------------|----------------------------------------------------|
-| GET    | `/users`       | List & search users by username                    |
-| POST   | `/users`       | Create new user with any role (including Admin)    |
-| DELETE | `/users/:id`   | Delete user + cascade their events & registrations |
+| Feature                 | Description                                      |
+|-------------------------|--------------------------------------------------|
+| Self Registration       | Participants can register themselves             |
+| Registration Management | Organizers/Admins can manage registrations       |
+| Status Control          | Pending, Approved, Rejected                      |
+| Cancellation            | Participants can cancel their registrations      |
+| Duplicate Protection    | Prevent duplicate event registration             |
 
-## Middleware
+------------------------------------------------------------------------------------
 
-| Function              | Purpose                                                    |
-|-----------------------|------------------------------------------------------------|
-| `isLoggedIn`          | Blocks unauthenticated access, redirects to `/login`       |
-| `isAdmin`             | Admin only — redirects to `/dashboard` otherwise           |
-| `isOrganizerOrAdmin`  | Organizer or Admin only — redirects to `/events` otherwise |
+# 👤 User Management (Admin)
 
-## Models
+Admins can:
 
-### User
+- View users
+- Search users
+- Create users
+- Assign roles
+- Delete users
+- Remove related data automatically
 
-| Field              | Type     | Required | Notes                                        |
-|--------------------|----------|----------|----------------------------------------------|
-| `username`         | String   | Yes      | Added by passport-local-mongoose, unique     |
-| `email`            | String   | Yes      | Unique, lowercase, validated with regex      |
-| `password`         | String   | Yes      | Hashed by passport-local-mongoose            |
-| `role`             | String   | Yes      | Enum: `Admin`, `Organizer`, `Participant`    |
-| `registrationDate` | Date     | —        | Defaults to `Date.now`                       |
+------------------------------------------------------------------------------------
 
-### Event
+# 📊 Dashboard
 
-| Field         | Type     | Required | Notes                                              |
-|---------------|----------|----------|----------------------------------------------------|
-| `eventName`   | String   | Yes      | Max 100 characters                                 |
-| `eventDate`   | Date     | Yes      | Server-side past-date check on create/update       |
-| `venue`       | String   | Yes      | Max 150 characters                                 |
-| `description` | String   | —        | Max 2000 characters, defaults to `""`              |
-| `organizer`   | ObjectId | Yes      | Ref → User                                         |
-| `createdDate` | Date     | —        | Defaults to `Date.now`                             |
+Role-based dashboard showing:
 
-### Registration
 
-| Field              | Type     | Required | Notes                                    |
-|--------------------|----------|----------|------------------------------------------|
-| `participant`      | ObjectId | Yes      | Ref → User                               |
-| `event`            | ObjectId | Yes      | Ref → Event                              |
-| `registrationDate` | Date     | —        | Defaults to `Date.now`                   |
-| `status`           | String   | —        | Enum: `Pending`, `Approved`, `Rejected`  |
+| User        | Dashboard Data                          |
+|-------------|-----------------------------------------|
+| Participant | Personal registrations and events       |
+| Organizer   | Own events and registration statistics  |
+| Admin       | Complete system statistics              |
 
-> Unique compound index on `{ participant, event }` prevents duplicate registrations.
 
-## Folder Structure
+------------------------------------------------------------------------------------
+
+# 🛠️ Tech Stack
+
+
+| Category          | Technology                 |
+|-------------------|----------------------------|
+| Runtime           | Node.js                    |
+| Backend           | Express.js                 |
+| Database          | MongoDB                    | 
+| ODM               | Mongoose                   |
+| Authentication    | Passport.js                |
+| Password Security | passport-local-mongoose    |
+| Template Engine   | EJS                        |
+| Frontend          | Bootstrap 5                | 
+| Icons             | Bootstrap Icons            |
+| Sessions          | express-session            |
+| Flash Messages    | connect-flash              | 
+| Configuration     | dotenv                     |
+| Form Support      | method-override            |
+
+
+------------------------------------------------------------------------------------
+
+# 📂 Project Structure
 
 ```
+Online-Event-Management-System/
+
 ├── models/
-│   ├── User.js              username, email (validated), role, registrationDate
-│   ├── Event.js             eventName (max 100), eventDate, venue (max 150),
-│   │                        description (max 2000), organizer (ref), createdDate
-│   └── Registration.js      participant (ref), event (ref), registrationDate,
-│                             status — unique index: { participant, event }
+│   ├── User.js
+│   ├── Event.js
+│   └── Registration.js
 │
 ├── routes/
-│   ├── auth.js              register (validated), login, logout, dashboard
-│   ├── events.js            full CRUD + search + pagination + past-date check
-│   ├── registrations.js     full CRUD scoped by role + pagination
-│   └── users.js             list, search, create (any role), delete (Admin only)
+│   ├── auth.js
+│   ├── events.js
+│   ├── registrations.js
+│   └── users.js
 │
 ├── middleware/
-│   └── index.js             isLoggedIn · isAdmin · isOrganizerOrAdmin
+│   └── index.js
 │
 ├── views/
 │   ├── auth/
-│   │   ├── login.ejs        login form with autocomplete
-│   │   └── register.ejs     registration form (Participant/Organizer only)
 │   ├── events/
-│   │   ├── EventList.ejs    list + search + pagination + past-event badges
-│   │   ├── AddEvent.ejs     create form + live past-date JS warning
-│   │   ├── EditEvent.ejs    edit form + live past-date JS warning
-│   │   └── EventDetails.ejs detail + registrations + quick register/cancel
 │   ├── registrations/
-│   │   ├── index.ejs        list + pagination + cancel (Participant) + delete (Admin/Organizer)
-│   │   ├── new.ejs          create form — Participants dropdown only
-│   │   └── edit.ejs         edit form
 │   ├── users/
-│   │   └── index.ejs        create user form + list + search (Admin only)
 │   ├── partials/
-│   │   ├── header.ejs       HTML head + Bootstrap 5 CDN + flash alerts
-│   │   ├── navbar.ejs       responsive nav + active link + role badge
-│   │   ├── footer.ejs       Bootstrap JS bundle
-│   │   └── 404.ejs          custom not-found page
-│   └── dashboard.ejs        scoped stats cards + quick actions + recent events
+│   └── dashboard.ejs
 │
 ├── public/
-│   ├── css/style.css        minimal Bootstrap overrides (pagination, warnings)
-│   ├── favicon.svg          custom SVG ticket emoji favicon
-│   └── images/
+│   ├── css/
+│   ├── images/
+│   └── favicon.svg
 │
-├── .env                     PORT, MONGO_URI, SESSION_SECRET  ← not committed
-├── .gitignore               node_modules/, .env, *.log
-├── app.js                   Express entry point + global error handler
-└── package.json             all dependencies pinned to exact versions
+├── app.js
+├── package.json
+├── .env
+└── README.md
 ```
-#   O n l i n e - E v e n t - M a n a g e m e n t - S y s t e m  
- 
+
+------------------------------------------------------------------------------------
+
+# ⚙️ Installation
+
+### 1. Clone Repository
+
+```bash
+git clone https://github.com/FaisalManan/Online-Event-Management-System.git
+```
+
+```bash
+cd Online-Event-Management-System
+```
+
+------------------------------------------------------------------------------------
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+------------------------------------------------------------------------------------
+
+### 3. Environment Setup
+
+Create a `.env` file:
+
+```env
+PORT=3000
+
+MONGO_URI=mongodb://127.0.0.1:27017/event-management
+
+SESSION_SECRET=your-secret-key
+```
+
+---
+
+### 4. Start MongoDB
+
+Make sure MongoDB service is running.
+
+------------------------------------------------------------------------------------
+
+### 5. Run Application
+
+Development:
+
+```bash
+npm run dev
+```
+
+Production:
+
+```bash
+npm start
+```
+
+Open:
+
+```
+http://localhost:3000
+```
+
+------------------------------------------------------------------------------------
+
+# 🗃️ Database Models
+
+## User
+
+
+| Field            | Type                            |
+|------------------|---------------------------------|
+| username         | String                          |
+| email            | String                          |
+| password         | String                          |
+| role             | Admin / Organizer / Participant |
+| registrationDate | Date                            |
+
+
+------------------------------------------------------------------------------------
+
+## Event
+
+
+| Field       | Type      |
+|-------------|-----------|
+| eventName   | String    |
+| eventDate   | Date      |
+| venue       | String    |
+| description | String    |
+| organizer   | ObjectId  |
+| createdDate | Date      |
+
+
+------------------------------------------------------------------------------------
+
+## Registration
+
+
+| Field            | Type                          |
+|------------------|-------------------------------|
+| participant      | ObjectId                      |
+| event            | ObjectId                      |
+| registrationDate | Date                          |
+| status           | Pending / Approved / Rejected |
+
+
+------------------------------------------------------------------------------------
+
+# 🔒 Security
+
+- Server-side validation
+- Protected routes
+- Role authorization middleware
+- Password hashing
+- Environment variables
+- Sanitized search queries
+- Global error handling
+
+------------------------------------------------------------------------------------
+
+# 🖥️ Screenshots
+
+Add screenshots:
+
+```
+screenshots/
+
+login.png
+dashboard.png
+events.png
+registrations.png
+```
+
+------------------------------------------------------------------------------------
+
+# 🔮 Future Improvements
+
+- Email notifications
+- Online payments
+- Event reminders
+- Calendar integration
+- REST API
+- React frontend
+- Cloud deployment
+
+------------------------------------------------------------------------------------
+
+# 👨💻 Author
+
+**Faisal Manan**
+
+GitHub:  
+https://github.com/FaisalManan
+
+LinkedIn:  
+https://www.linkedin.com/in/faisal-manan-94775a29b/
+
+------------------------------------------------------------------------------------
+
+⭐ If you find this project useful, consider giving it a star!
+
+
+
