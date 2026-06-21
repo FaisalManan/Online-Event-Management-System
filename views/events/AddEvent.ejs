@@ -1,0 +1,102 @@
+<%- include('../partials/header') %>
+
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-calendar-plus me-2"></i>Add New Event</h5>
+                </div>
+                <div class="card-body p-4">
+
+                    <% if (errors && errors.length> 0) { %>
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                <% errors.forEach(e=> { %><li>
+                                        <%= e %>
+                                    </li>
+                                    <% }); %>
+                            </ul>
+                        </div>
+                        <% } %>
+
+                            <form action="/events" method="POST">
+
+                                <div class="mb-3">
+                                    <label for="eventName" class="form-label fw-semibold">Event Name <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="eventName" name="eventName" required />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="eventDate" class="form-label fw-semibold">Event Date <span
+                                            class="text-danger">*</span></label>
+                                    <input type="datetime-local" class="form-control" id="eventDate" name="eventDate"
+                                        required />
+                                    <div id="pastDateWarning" class="form-text text-warning fw-semibold d-none">
+                                        <i class="bi bi-exclamation-triangle me-1"></i>The selected date is in the past.
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="venue" class="form-label fw-semibold">Venue <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="venue" name="venue" required />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="description" class="form-label fw-semibold">Description</label>
+                                    <textarea class="form-control" id="description" name="description"
+                                        rows="4"></textarea>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label for="organizer" class="form-label fw-semibold">Organizer</label>
+                                    <% if (currentUser && currentUser.role==='Admin' ) { %>
+                                        <!-- Admin can assign any Organizer or Admin as the event organizer -->
+                                        <select class="form-select" id="organizer" name="organizer">
+                                            <% organizers.forEach(u=> { %>
+                                                <option value="<%= u._id %>"
+                                                    <%=u._id.toString()===currentUser._id.toString() ? 'selected' : ''
+                                                    %>>
+                                                    <%= u.username %>
+                                                        <%= u._id.toString()===currentUser._id.toString() ? ' (you)'
+                                                            : '' %>
+                                                </option>
+                                                <% }); %>
+                                        </select>
+                                        <% } else { %>
+                                            <!-- Organizer is always themselves — no choice needed -->
+                                            <input type="hidden" name="organizer" value="<%= currentUser._id %>" />
+                                            <input type="text" class="form-control"
+                                                value="<%= currentUser.username %> (you)" disabled />
+                                            <% } %>
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-save me-1"></i>Save Event
+                                    </button>
+                                    <a href="/events" class="btn btn-outline-secondary">Cancel</a>
+                                </div>
+
+                            </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // #10 – live past-date warning
+        const dateInput = document.getElementById('eventDate');
+        const warning = document.getElementById('pastDateWarning');
+        function checkDate() {
+            if (dateInput.value && new Date(dateInput.value) < new Date()) {
+                warning.classList.remove('d-none');
+            } else {
+                warning.classList.add('d-none');
+            }
+        }
+        dateInput.addEventListener('change', checkDate);
+    </script>
+
+    <%- include('../partials/footer') %>
